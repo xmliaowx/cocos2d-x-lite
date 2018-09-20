@@ -1504,12 +1504,17 @@ static bool JSB_glGetUniformLocation(se::State& s) {
     ok &= seval_to_std_string(args[1], &arg1 );
 
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    int ret_val;
+    int ret_val = 0;
 
     GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     ret_val = glGetUniformLocation(programId , arg1.c_str());
     JSB_GL_CHECK_ERROR();
-    s.rval().setInt32(ret_val);
+    if(ret_val < 0)
+    {
+        s.rval().setNull();
+    } else{
+        s.rval().setInt32(ret_val);
+    }
     return true;
 }
 SE_BIND_FUNC(JSB_glGetUniformLocation)
