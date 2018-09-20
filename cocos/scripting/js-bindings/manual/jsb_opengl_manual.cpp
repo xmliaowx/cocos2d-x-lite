@@ -1567,7 +1567,7 @@ static bool JSB_glIsEnabled(se::State& s) {
     GLboolean ret_val;
 
     ret_val = glIsEnabled((GLenum)arg0);
-    s.rval().setInt32((int32_t)ret_val);
+    s.rval().setBoolean(ret_val);
     return true;
 }
 SE_BIND_FUNC(JSB_glIsEnabled)
@@ -1590,7 +1590,7 @@ static bool JSB_glIsFramebuffer(se::State& s) {
         ret_val = glIsFramebuffer(frameBufferId);
     }
 
-    s.rval().setInt32((int32_t)ret_val);
+    s.rval().setBoolean(ret_val);
     return true;
 }
 SE_BIND_FUNC(JSB_glIsFramebuffer)
