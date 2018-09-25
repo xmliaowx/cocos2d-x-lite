@@ -747,7 +747,7 @@ static bool JSB_glBufferData(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     if (args[1].isNumber())
     {
-        count = args[1].toUint32();
+        ok &= seval_to_int32(args[1],&count);
     }
     else
     {
