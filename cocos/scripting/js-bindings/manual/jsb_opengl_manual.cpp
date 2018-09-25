@@ -3465,27 +3465,27 @@ static bool JSB_glGetUniformfv(se::State& s) {
             break;
         case GL_FLOAT_MAT2:
             usize = 2 * 2;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_VEC2;
             break;
         case GL_FLOAT_MAT3:
             usize = 3 * 3;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_VEC2;
             break;
         case GL_FLOAT_MAT4:
             usize = 4 * 4;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_VEC2;
             break;
         case GL_FLOAT_VEC2:
             usize = 2;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_VEC2;
             break;
         case GL_FLOAT_VEC3:
             usize = 3;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_VEC2;
             break;
         case GL_FLOAT_VEC4:
             usize = 4;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_VEC2;
             break;
 
             // int
@@ -3495,15 +3495,15 @@ static bool JSB_glGetUniformfv(se::State& s) {
             break;
         case GL_INT_VEC2:
             usize = 2;
-            utype = GL_INT;
+            utype = GL_INT_VEC2;
             break;
         case GL_INT_VEC3:
             usize = 3;
-            utype = GL_INT;
+            utype = GL_INT_VEC2;
             break;
         case GL_INT_VEC4:
             usize = 4;
-            utype = GL_INT;
+            utype = GL_INT_VEC2;
             break;
 
         default:
@@ -3511,7 +3511,7 @@ static bool JSB_glGetUniformfv(se::State& s) {
             return false;
     }
 
-    if( utype == GL_FLOAT)
+    if( utype == GL_FLOAT_VEC2)
     {
         GLfloat* param = new (std::nothrow) GLfloat[usize];
         JSB_GL_CHECK(glGetUniformfv(id, arg1, param));
@@ -3521,13 +3521,31 @@ static bool JSB_glGetUniformfv(se::State& s) {
         CC_SAFE_DELETE_ARRAY(param);
         return true;
     }
-    else if( utype == GL_INT )
+    else if( utype == GL_INT_VEC2 )
     {
         GLint* param = new (std::nothrow) GLint[usize];
         JSB_GL_CHECK(glGetUniformiv(id, arg1, param));
 
         se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, param, usize * sizeof(GLint)));
         s.rval().setObject(obj);
+        CC_SAFE_DELETE_ARRAY(param);
+        return true;
+    }
+    if( utype == GL_FLOAT)
+    {
+        GLfloat* param = new (std::nothrow) GLfloat[usize];
+        JSB_GL_CHECK(glGetUniformfv(id, arg1, param));
+
+        s.rval().setFloat(param[0]);
+        CC_SAFE_DELETE_ARRAY(param);
+        return true;
+    }
+    else if( utype == GL_INT )
+    {
+        GLint* param = new (std::nothrow) GLint[usize];
+        JSB_GL_CHECK(glGetUniformiv(id, arg1, param));
+
+        s.rval().setInt32(param[0]);
         CC_SAFE_DELETE_ARRAY(param);
         return true;
     }
