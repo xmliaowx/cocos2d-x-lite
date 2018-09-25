@@ -77,26 +77,8 @@ void ccInvalidateStateCache()
 void ccBindBuffer(GLenum target, GLuint buffer)
 {
 #if CC_ENABLE_GL_STATE_CACHE
-    if (target == GL_ARRAY_BUFFER)
-    {
-        if (__currentVertexBuffer != buffer)
-        {
-            __currentVertexBuffer = buffer;
-            glBindBuffer(target, buffer);
-        }
-    }
-    else if (target == GL_ELEMENT_ARRAY_BUFFER)
-    {
-        if (__currentIndexBuffer != buffer)
-        {
-            __currentIndexBuffer = buffer;
-            glBindBuffer(target, buffer);
-        }
-    }
-    else
-    {
-        glBindBuffer(target, buffer);
-    }
+    __currentIndexBuffer = buffer;
+    glBindBuffer(target, buffer);
 #else
     // Should cache it, ccVertexAttribPointer depends on it.
     __currentVertexBuffer = buffer;
