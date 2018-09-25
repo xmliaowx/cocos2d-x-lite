@@ -166,6 +166,8 @@ namespace se {
          */
         std::string getCurrentStackTrace();
 
+        void ThrowException(const std::string& errorInfo);
+
         /**
          *  Delegate class for file operation
          */
