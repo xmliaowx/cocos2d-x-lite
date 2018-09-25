@@ -3186,13 +3186,18 @@ static bool JSB_glGetActiveAttrib(se::State& s) {
 
     JSB_GL_CHECK(glGetActiveAttrib(programId, arg1, length, NULL, &size, &type, buffer));
 
-    se::Object* object = se::Object::createObjectWithClass(__jsb_WebGLActiveInfo_class);
-    s.rval().setObject(object, true);
-    object->decRef();
+    if (size == -1 || type == -1){
+        s.rval().setNull();
+    } else{
+        se::Object* object = se::Object::createObjectWithClass(__jsb_WebGLActiveInfo_class);
+        s.rval().setObject(object, true);
+        object->decRef();
 
-    object->setProperty("size", se::Value((int32_t)size));
-    object->setProperty("type", se::Value((int32_t)type));
-    object->setProperty("name", se::Value((char*)buffer));
+        object->setProperty("size", se::Value((int32_t)size));
+        object->setProperty("type", se::Value((int32_t)type));
+        object->setProperty("name", se::Value((char*)buffer));
+    }
+
     CC_SAFE_DELETE_ARRAY(buffer);
 
     return true;
@@ -3228,11 +3233,15 @@ static bool JSB_glGetActiveUniform(se::State& s) {
 
     JSB_GL_CHECK(glGetActiveUniform(id, arg1, length, NULL, &size, &type, buffer));
 
-    se::HandleObject object(se::Object::createPlainObject());
-    object->setProperty("size", se::Value((int32_t)size));
-    object->setProperty("type", se::Value((int32_t)type));
-    object->setProperty("name", se::Value((char*)buffer));
-    s.rval().setObject(object);
+    if (size == -1 || type == -1){
+        s.rval().setNull();
+    } else{
+        se::HandleObject object(se::Object::createPlainObject());
+        object->setProperty("size", se::Value((int32_t)size));
+        object->setProperty("type", se::Value((int32_t)type));
+        object->setProperty("name", se::Value((char*)buffer));
+        s.rval().setObject(object);
+    }
 
     CC_SAFE_DELETE_ARRAY(buffer);
     return true;
