@@ -780,6 +780,7 @@ static bool JSB_glBufferSubData(se::State& s) {
     if (args[2].isNumber())
     {
         count = args[2].toUint32();
+        ok = false;
     }
     else
     {
@@ -2951,7 +2952,7 @@ static bool JSB_glDeleteBuffer(se::State& s) {
     GLuint bufferId = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(ccDeleteBuffers(1, &bufferId));
     safeRemoveElementFromGLObjectMap(__webglBufferMap, bufferId);
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteBuffer)
