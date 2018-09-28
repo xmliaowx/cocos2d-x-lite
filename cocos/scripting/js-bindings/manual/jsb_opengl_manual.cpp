@@ -776,16 +776,7 @@ static bool JSB_glBufferSubData(se::State& s) {
 
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_int32(args[1], &arg1 );
-
-    if (args[2].isNumber())
-    {
-        count = args[2].toUint32();
-        ok = false;
-    }
-    else
-    {
-        ok &= JSB_get_arraybufferview_dataptr(args[2], &count, &arg2);
-    }
+    ok &= JSB_get_arraybufferview_dataptr(args[2], &count, &arg2);
 
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
@@ -1125,7 +1116,7 @@ static bool JSB_glDeleteProgram(se::State& s) {
     GLuint id = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteProgram(id));
     safeRemoveElementFromGLObjectMap(__webglProgramMap, id);
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteProgram)
@@ -1142,7 +1133,7 @@ static bool JSB_glDeleteShader(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteShader(shaderId));
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
 
     auto iter = __shaders.find(shaderId);
     if (iter != __shaders.end())
@@ -2935,7 +2926,7 @@ static bool JSB_glDeleteTextures(se::State& s) {
     GLuint id = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteTextures(1, &id));
     safeRemoveElementFromGLObjectMap(__webglTextureMap, id);
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteTextures)
@@ -2969,7 +2960,7 @@ static bool JSB_glDeleteRenderbuffer(se::State& s) {
     GLuint renderBufferId = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteRenderbuffers(1, &renderBufferId));
     safeRemoveElementFromGLObjectMap(__webglRenderbufferMap, renderBufferId);
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteRenderbuffer)
