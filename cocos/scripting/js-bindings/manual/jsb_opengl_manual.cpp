@@ -1207,13 +1207,17 @@ static bool JSB_glDetachShader(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_uint32(args[1], &arg1 );
+    WebGLProgram* arg0;
+    WebGLShader* arg1;
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    ok &= seval_to_native_ptr(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glDetachShader((GLuint)arg0 , (GLuint)arg1  ));
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
+    GLuint shaderId = arg1 != nullptr ? arg1->_id : 0;
+
+    JSB_GL_CHECK(glDetachShader(programId , shaderId  ));
 
     return true;
 }
@@ -3135,15 +3139,16 @@ static bool JSB_glGetShaderSource(se::State& s) {
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLShader* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
 
     GLsizei length;
-    JSB_GL_CHECK(glGetShaderiv(arg0, GL_SHADER_SOURCE_LENGTH, &length));
+    JSB_GL_CHECK(glGetShaderiv(shaderId, GL_SHADER_SOURCE_LENGTH, &length));
     GLchar* src = new (std::nothrow) GLchar[length];
-    JSB_GL_CHECK(glGetShaderSource(arg0, length, NULL, src));
+    JSB_GL_CHECK(glGetShaderSource(shaderId, length, NULL, src));
 
     s.rval().setString(src);
     CC_SAFE_DELETE_ARRAY(src);
