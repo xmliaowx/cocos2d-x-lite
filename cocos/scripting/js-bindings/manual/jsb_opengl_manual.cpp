@@ -3070,7 +3070,13 @@ static bool JSB_glGetProgramParameter(se::State& s) {
     GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     GLint ret;
     JSB_GL_CHECK(glGetProgramiv(programId, arg1, &ret));
-    s.rval().setInt32(ret);
+    if (arg1 == GL_ATTACHED_SHADERS || arg1 ==  GL_ACTIVE_ATTRIBUTES|| arg1 == GL_ACTIVE_UNIFORMS){
+        s.rval().setInt32(ret);
+    } else if(arg1 == GL_DELETE_STATUS || arg1 ==  GL_LINK_STATUS|| arg1 == GL_VALIDATE_STATUS){
+        s.rval().setBoolean( (ret > 0) ? true : false);
+    } else{
+        s.rval().setNull();
+    }
     return true;
 }
 SE_BIND_FUNC(JSB_glGetProgramParameter)
