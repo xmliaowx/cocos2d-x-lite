@@ -3269,6 +3269,7 @@ static bool JSB_glGetAttachedShaders(se::State& s) {
 
     GLsizei length;
     JSB_GL_CHECK(glGetProgramiv(id, GL_ATTACHED_SHADERS, &length));
+    SE_PRECONDITION2(glGetError() == 0, false, "Error processing arguments");
     GLuint* buffer = new (std::nothrow) GLuint[length];
     memset(buffer, 0, length * sizeof(GLuint));
     //Fix bug 2448, it seems that glGetAttachedShaders will crash if we send NULL to the third parameter (eg Windows), same as in lua binding
