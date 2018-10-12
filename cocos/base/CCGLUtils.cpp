@@ -100,7 +100,6 @@ void ccBindBuffer(GLenum target, GLuint buffer)
 
 void ccDeleteBuffers(GLsizei n, const GLuint * buffers)
 {
-#if CC_ENABLE_GL_STATE_CACHE
     for (GLsizei i = 0; i < n; ++i)
     {
         if (buffers[i] == __currentVertexBuffer)
@@ -109,9 +108,6 @@ void ccDeleteBuffers(GLsizei n, const GLuint * buffers)
             __currentIndexBuffer = -1;
     }
     glDeleteBuffers(n, buffers);
-#else
-    glDeleteBuffers(n, buffers);
-#endif
 }
 
 GLint ccGetBoundVertexBuffer()
@@ -149,7 +145,6 @@ GLint ccGetBoundVertexArray()
 
 void ccEnableVertexAttribArray(GLuint index)
 {
-#if CC_ENABLE_GL_STATE_CACHE
     assert(index < MAX_ATTRIBUTE_UNIT);
     if (index >= MAX_ATTRIBUTE_UNIT)
         return;
@@ -160,14 +155,10 @@ void ccEnableVertexAttribArray(GLuint index)
 
     __enabledVertexAttribArrayFlag |= flag;
     glEnableVertexAttribArray(index);
-#else
-    glEnableVertexAttribArray(index);
-#endif
 }
 
 void ccDisableVertexAttribArray(GLuint index)
 {
-#if CC_ENABLE_GL_STATE_CACHE
     if (index >= MAX_ATTRIBUTE_UNIT)
         return;
     uint32_t flag = 1 << index;
@@ -176,9 +167,6 @@ void ccDisableVertexAttribArray(GLuint index)
         glDisableVertexAttribArray(index);
         __enabledVertexAttribArrayFlag &= ~(1 << index);
     }
-#else
-    glDisableVertexAttribArray(index);
-#endif
 }
 
 void ccVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer)
@@ -429,7 +417,6 @@ void ccFlipYOrPremultiptyAlphaIfNeeded(GLenum format, GLsizei width, GLsizei hei
 
 GLint ccGetBufferDataSize()
 {
-#if CC_ENABLE_GL_STATE_CACHE
     GLint result = 0, size = 0;
     for( int i = 0; i < MAX_ATTRIBUTE_UNIT; i++ ) {
         const VertexAttributePointerInfo *info = getVertexAttribPointerInfo(i);
@@ -457,9 +444,6 @@ GLint ccGetBufferDataSize()
     }
 
     return result;
-#else
-    return -1;
-#endif
 }
 
 NS_CC_END
