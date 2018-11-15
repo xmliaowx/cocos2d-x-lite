@@ -3306,7 +3306,9 @@ static bool JSB_glGetProgramInfoLog(se::State& s) {
     WebGLProgram* arg0;
     ok &= seval_to_native_ptr(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
+#if OPENGL_PARAMETER_CHECK
+    SE_PRECONDITION4(arg0 != nullptr, false, GL_INVALID_VALUE);
+#endif
     GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     GLsizei length;
     JSB_GL_CHECK(glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length));
@@ -3337,6 +3339,9 @@ static bool JSB_glGetShaderInfoLog(se::State& s) {
     s.rval().setNull();
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+#if OPENGL_PARAMETER_CHECK
+    SE_PRECONDITION4(arg0 != nullptr, false, GL_INVALID_VALUE);
+#endif
     GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
 
     GLsizei length;
@@ -3370,6 +3375,9 @@ static bool JSB_glGetShaderSource(se::State& s) {
     s.rval().setNull();
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+#if OPENGL_PARAMETER_CHECK
+    SE_PRECONDITION4(arg0 != nullptr, false, GL_INVALID_VALUE);
+#endif
     GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
 
     GLsizei length;
@@ -3979,20 +3987,16 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_ARRAY_BUFFER_BINDING:
         case GL_ELEMENT_ARRAY_BUFFER_BINDING:
         {
+            ret.setNull();
             JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
             if (intbuffer[0] > 0) {
                 auto iter = __webglBufferMap.find(intbuffer[0]);
                 if (iter != __webglBufferMap.end()) {
                     auto objIter = se::NativePtrToObjectMap::find(iter->second);
                     if (objIter != se::NativePtrToObjectMap::end()) {
-                        s.rval().setObject(objIter->second);
-                    }
-                    else {
-                        s.rval().setNull();
+                        ret.setObject(objIter->second);
                     }
                 }
-            } else {
-                ret.setNull();
             }
         }
             break;
@@ -4000,20 +4004,16 @@ static bool JSB_glGetParameter(se::State& s)
             // WebGLProgram
         case GL_CURRENT_PROGRAM:
         {
+            ret.setNull();
             JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
             if (intbuffer[0] > 0) {
                 auto iter = __webglProgramMap.find(intbuffer[0]);
                 if (iter != __webglProgramMap.end()) {
                     auto objIter = se::NativePtrToObjectMap::find(iter->second);
                     if (objIter != se::NativePtrToObjectMap::end()) {
-                        s.rval().setObject(objIter->second);
-                    }
-                    else {
-                        s.rval().setNull();
+                        ret.setObject(objIter->second);
                     }
                 }
-            } else {
-                ret.setNull();
             }
         }
             break;
@@ -4021,20 +4021,16 @@ static bool JSB_glGetParameter(se::State& s)
             // WebGLFramebuffer
         case GL_FRAMEBUFFER_BINDING:
         {
+            ret.setNull();
             JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
             if (intbuffer[0] > 0) {
                 auto iter = __webglFramebufferMap.find(intbuffer[0]);
                 if (iter != __webglFramebufferMap.end()) {
                     auto objIter = se::NativePtrToObjectMap::find(iter->second);
                     if (objIter != se::NativePtrToObjectMap::end()) {
-                        s.rval().setObject(objIter->second);
-                    }
-                    else {
-                        s.rval().setNull();
+                        ret.setObject(objIter->second);
                     }
                 }
-            } else {
-                ret.setNull();
             }
         }
             break;
@@ -4042,20 +4038,16 @@ static bool JSB_glGetParameter(se::State& s)
             // WebGLRenderbuffer
         case GL_RENDERBUFFER_BINDING:
         {
+            ret.setNull();
             JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
             if (intbuffer[0] > 0) {
                 auto iter = __webglRenderbufferMap.find(intbuffer[0]);
                 if (iter != __webglRenderbufferMap.end()) {
                     auto objIter = se::NativePtrToObjectMap::find(iter->second);
                     if (objIter != se::NativePtrToObjectMap::end()) {
-                        s.rval().setObject(objIter->second);
-                    }
-                    else {
-                        s.rval().setNull();
+                        ret.setObject(objIter->second);
                     }
                 }
-            } else {
-                ret.setNull();
             }
         }
             break;
@@ -4064,20 +4056,16 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_TEXTURE_BINDING_2D:
         case GL_TEXTURE_BINDING_CUBE_MAP:
         {
+            ret.setNull();
             JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
             if (intbuffer[0] > 0) {
                 auto iter = __webglTextureMap.find(intbuffer[0]);
                 if (iter != __webglTextureMap.end()) {
                     auto objIter = se::NativePtrToObjectMap::find(iter->second);
                     if (objIter != se::NativePtrToObjectMap::end()) {
-                        s.rval().setObject(objIter->second);
-                    }
-                    else {
-                        s.rval().setNull();
+                        ret.setObject(objIter->second);
                     }
                 }
-            } else {
-                ret.setNull();
             }
         }
             break;
@@ -4494,15 +4482,69 @@ static bool JSB_glFlushCommand(se::State& s) {
                 p += 2;
                 break;
             case GL_COMMAND_DRAW_ARRAYS:
+            {
                 LOG_GL_COMMAND("Flush: DRAW_ARRAYS, %u, %d, %d\n", (GLenum)p[1], (GLint)p[2], (int)p[3]);
+#if OPENGL_PARAMETER_CHECK
+                SE_PRECONDITION4((GLint) p[2] >= 0, false, GL_INVALID_VALUE);
+
+                int arraysBuffer = 0;
+                JSB_GL_CHECK(glGetIntegerv(GL_CURRENT_PROGRAM, &arraysBuffer));
+
+                SE_PRECONDITION4(arraysBuffer > 0, false, GL_INVALID_OPERATION);
+
+                GLint arraysData = 0;
+                glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &arraysData);
+                int64_t size = ccGetBufferDataSize(), first = (GLint) p[2];
+                int64_t total = (int64_t) (size * ((GLsizei) p[3] > 0 ? first + (GLsizei) p[3]
+                                                                      : (GLsizei) p[3]));
+                SE_PRECONDITION4(total <= arraysData, false, GL_INVALID_OPERATION);
+#endif
                 JSB_GL_CHECK_VOID(glDrawArrays((GLenum)p[1], (GLint)p[2], (GLsizei)p[3]));
                 p += 4;
                 break;
+            }
             case GL_COMMAND_DRAW_ELEMENTS:
+            {
                 LOG_GL_COMMAND("Flush: DRAW_ELEMENTS\n");
-                JSB_GL_CHECK_VOID(glDrawElements((GLenum)p[1], (GLsizei)p[2], (GLenum)p[3], (const GLvoid*)(intptr_t)p[4]));
+#if OPENGL_PARAMETER_CHECK
+                int elementsOffset = (int) p[4];
+                SE_PRECONDITION4(
+                        (GLenum) p[3] == GL_UNSIGNED_BYTE || (GLenum) p[3] == GL_UNSIGNED_SHORT,
+                        false, GL_INVALID_ENUM);
+
+                SE_PRECONDITION4((GLsizei) p[2] >= 0 && elementsOffset >= 0, false,
+                                 GL_INVALID_VALUE);
+
+                int elementsSize = 0;
+
+                switch ((GLenum) p[3]) {
+                    case GL_UNSIGNED_BYTE:
+                        elementsSize = sizeof(GLbyte);
+                        break;
+                    case GL_UNSIGNED_SHORT:
+                        elementsSize = sizeof(GLshort);
+                        break;
+                }
+
+                SE_PRECONDITION4(elementsOffset % elementsSize == 0, false, GL_INVALID_OPERATION);
+
+                int elementsBuffer = 0;
+                JSB_GL_CHECK(glGetIntegerv(GL_CURRENT_PROGRAM, &elementsBuffer));
+                SE_PRECONDITION4(elementsBuffer > 0, false, GL_INVALID_OPERATION);
+
+                JSB_GL_CHECK(glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &elementsBuffer));
+                SE_PRECONDITION4(elementsBuffer > 0, false, GL_INVALID_OPERATION);
+
+                glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &elementsBuffer);
+                SE_PRECONDITION4((GLsizei) p[2] == 0 || ((elementsBuffer > elementsOffset) &&
+                                                         (GLsizei) p[2] <=
+                                                         ((elementsBuffer - elementsOffset) /
+                                                          elementsSize)), false, GL_INVALID_OPERATION);
+#endif
+                JSB_GL_CHECK_VOID(glDrawElements((GLenum) p[1], (GLsizei) p[2], (GLenum) p[3], (const GLvoid *) (intptr_t) p[4]));
                 p += 5;
                 break;
+            }
             case GL_COMMAND_ENABLE:
                 LOG_GL_COMMAND("Flush: ENABLE\n");
                 JSB_GL_CHECK_VOID(glEnable((GLenum)p[1]));
@@ -4755,6 +4797,9 @@ static bool JSB_glFlushCommand(se::State& s) {
             {
                 LOG_GL_COMMAND("Flush: UNIFORM_MATRIX_2FV\n");
                 GLsizei elementCount = (GLsizei)p[3];
+#if OPENGL_PARAMETER_CHECK
+                SE_PRECONDITION4(elementCount % 4 == 0, false, GL_INVALID_VALUE);
+#endif
                 JSB_GL_CHECK_VOID(glUniformMatrix2fv((GLint)p[1], elementCount / 4, (GLboolean)p[2], &p[4]));
                 p += (elementCount + 4);
                 break;
@@ -4763,6 +4808,9 @@ static bool JSB_glFlushCommand(se::State& s) {
             {
                 LOG_GL_COMMAND("Flush: UNIFORM_MATRIX_3FV\n");
                 GLsizei elementCount = (GLsizei)p[3];
+#if OPENGL_PARAMETER_CHECK
+                SE_PRECONDITION4(elementCount % 9 == 0, false, GL_INVALID_VALUE);
+#endif
                 JSB_GL_CHECK_VOID(glUniformMatrix3fv((GLint)p[1], elementCount / 9, (GLboolean)p[2], &p[4]));
                 p += (elementCount + 4);
                 break;
@@ -4771,6 +4819,9 @@ static bool JSB_glFlushCommand(se::State& s) {
             {
                 LOG_GL_COMMAND("Flush: UNIFORM_MATRIX_4FV\n");
                 GLsizei elementCount = (GLsizei)p[3];
+#if OPENGL_PARAMETER_CHECK
+                SE_PRECONDITION4(elementCount % 16 == 0, false, GL_INVALID_VALUE);
+#endif
                 JSB_GL_CHECK_VOID(glUniformMatrix4fv((GLint)p[1], elementCount / 16, (GLboolean)p[2], &p[4]));
                 p += (elementCount + 4);
                 break;
